@@ -15,6 +15,12 @@
       --text-dark: #111827;
       --text-light: #f9fafb;
       --accent-color: #8b5cf6;
+      --highlight-color: #4ade80;
+    }
+
+    ::selection {
+      background-color: var(--accent-color);
+      color: white;
     }
 
     * {
@@ -134,12 +140,29 @@
 
     tr:hover {
       background-color: #f3f4f6;
+      transform: translateX(5px);
+      transition: all 0.3s ease;
     }
 
     .emoji {
       font-size: 1.5rem;
       margin-right: 0.5rem;
       vertical-align: middle;
+    }
+
+    /* Efectos de hover en textos */
+    td span.local:hover, td span.remote:hover {
+      transform: scale(1.05);
+      text-shadow: 0 0 5px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    li:hover {
+      transform: translateX(10px);
+      color: var(--primary-color);
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
 
     .local {
@@ -172,6 +195,13 @@
       margin-bottom: 1rem;
       font-size: 1.3rem;
       color: var(--primary-color);
+      transition: all 0.3s ease;
+    }
+
+    .feature-title:hover {
+      transform: scale(1.03);
+      color: var(--accent-color);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
 
     .local-badge, .remote-badge {
@@ -201,6 +231,32 @@
       font-family: monospace;
       margin: 1rem 0;
       overflow-x: auto;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .command-block:hover {
+      background-color: #374151;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .command-block::after {
+      content: "Copiar";
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background-color: var(--accent-color);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .command-block:hover::after {
+      opacity: 1;
     }
 
     footer {
@@ -430,6 +486,41 @@
 </div>
 
 <script>
+  // Añadir efecto de tooltip a elementos con clase .local y .remote
+  document.addEventListener('DOMContentLoaded', function() {
+    // Añadir efecto de tooltip a elementos con clase .local
+    const localElements = document.querySelectorAll('.local');
+    localElements.forEach(element => {
+      element.setAttribute('title', '✨ Característica de Git Local');
+      element.style.cursor = 'help';
+    });
+
+    // Añadir efecto de tooltip a elementos con clase .remote
+    const remoteElements = document.querySelectorAll('.remote');
+    remoteElements.forEach(element => {
+      element.setAttribute('title', '✨ Característica de Git Remoto');
+      element.style.cursor = 'help';
+    });
+
+    // Añadir efecto de clic para bloques de comandos
+    const commandBlocks = document.querySelectorAll('.command-block');
+    commandBlocks.forEach(block => {
+      block.addEventListener('click', function() {
+        const textToCopy = this.textContent;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          // Mostrar feedback temporal
+          const originalText = this.textContent;
+          this.textContent = "¡Copiado!";
+          this.style.backgroundColor = "#10b981";
+
+          setTimeout(() => {
+            this.textContent = originalText;
+            this.style.backgroundColor = "";
+          }, 1000);
+        });
+      });
+    });
+  });
   function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
 
@@ -454,6 +545,34 @@
     void document.getElementById(tabName).offsetWidth; // Forzar reflujo
     document.getElementById(tabName).classList.add("fadeIn");
   }
+
+  // Añadir efecto de resaltado al pasar sobre elementos de la tabla
+  document.addEventListener('DOMContentLoaded', function() {
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+      row.addEventListener('mouseenter', function() {
+        const cells = this.querySelectorAll('td');
+        cells.forEach((cell, index) => {
+          if (index > 0) { // Omitir la primera celda (título)
+            // Añadir un subrayado animado
+            if (cell.querySelector('span')) {
+              const span = cell.querySelector('span');
+              span.style.borderBottom = '2px dashed ' + (index === 1 ? 'var(--local-color)' : 'var(--remote-color)');
+              span.style.paddingBottom = '2px';
+            }
+          }
+        });
+      });
+
+      row.addEventListener('mouseleave', function() {
+        const cells = this.querySelectorAll('td span');
+        cells.forEach(span => {
+          span.style.borderBottom = '';
+          span.style.paddingBottom = '';
+        });
+      });
+    });
+  });
 </script>
 </body>
 </html>
